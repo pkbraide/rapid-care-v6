@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pro Dashboard — Rapid Care Ghana</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .status-bar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .status-toggle-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .status-row:last-child { border-bottom: none; }
+
+    .status-label { font-size: 15px; font-weight: 600; }
+    .status-desc { font-size: 12px; color: var(--text-3); }
+
+    .request-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-bottom: 12px;
+      transition: var(--transition);
+    }
+    .request-card:hover { box-shadow: var(--shadow); }
+    .request-card.pending { border-left: 4px solid var(--yellow); }
+    .request-card.accepted { border-left: 4px solid var(--blue); }
+    .request-card.on_the_way { border-left: 4px solid var(--green); animation: pulse-border 2s infinite; }
+    .request-card.completed { border-left: 4px solid var(--green); opacity: 0.7; }
+
+    @keyframes pulse-border {
+      0%, 100% { border-left-color: var(--green); }
+      50% { border-left-color: var(--green-light); }
+    }
+
+    .request-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin: 12px 0;
+      background: var(--surface-2);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+    }
+
+    .meta-item { font-size: 12px; }
+    .meta-label { color: var(--text-3); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; font-size: 10px; }
+    .meta-value { color: var(--text); font-weight: 600; font-size: 13px; margin-top: 2px; }
+
+    .pro-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+
+    .tab-bar {
+      display: flex;
+      gap: 4px;
+      background: var(--surface-2);
+      padding: 4px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      background: none;
+      color: var(--text-3);
+      transition: var(--transition);
+    }
+    .tab-btn.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
+
+    .count-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      background: var(--red);
+      color: white;
+      border-radius: 50%;
+      font-size: 10px;
+      font-weight: 700;
+      margin-left: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── NAVBAR ─────────────────────────────────────────────────── -->
+<nav class="navbar">
+  <button class="navbar-hamburger" id="hamburgerBtn" title="Menu">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <div class="navbar-brand">
+    <img src="logo.jpg" alt="Rapid Care" class="navbar-logo">
+    <span>Rapid Care <span style="font-size:11px;background:#DBEAFE;color:var(--blue);padding:2px 8px;border-radius:20px;font-weight:700;vertical-align:middle">PRO</span></span>
+  </div>
+  <div class="navbar-spacer"></div>
+  <div class="navbar-actions">
+    <span id="navStatusDot" class="status-dot inactive" title="Availability status"></span>
+    <button class="dark-toggle" onclick="toggleDarkMode()" id="darkToggleNav"></button>
+    <div class="avatar-wrapper">
+      <button class="avatar-btn" id="avatarBtn" style="background:linear-gradient(135deg,var(--blue),var(--blue-light))" title="Account menu"></button>
+      <div class="avatar-dropdown" id="avatarDropdown">
+        <div class="dropdown-header">
+          <div class="d-name" data-user-name></div>
+          <div class="d-email" data-user-email></div>
+          <div class="d-role" style="background:#DBEAFE;color:#1E3A8A">Professional</div>
+        </div>
+        <button class="dropdown-item" onclick="switchPage('profile');document.getElementById('avatarDropdown').classList.remove('open')">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          My Profile
+        </button>
+        <button class="dropdown-item" onclick="switchPage('status');document.getElementById('avatarDropdown').classList.remove('open')">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          My Status
+        </button>
+        <button class="dropdown-item" onclick="toggleDarkMode()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          Toggle Dark Mode
+        </button>
+        <button class="dropdown-item" onclick="logout()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sign Out
+        </button>
+        <button class="dropdown-item danger" onclick="deleteAccount()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          Delete Account
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="mainSidebar">
+    <div class="sidebar-profile">
+      <div class="sidebar-avatar" style="background:linear-gradient(135deg,var(--blue),var(--blue-light))" data-user-avatar></div>
+      <div class="sidebar-name" data-user-name>Loading...</div>
+      <div style="font-size:12px;color:var(--text-3);display:flex;align-items:center;gap:6px">
+        <span class="status-dot" id="sidebarStatusDot"></span>
+        <span id="sidebarStatusText">Offline</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Overview</div>
+      <button class="sidebar-nav-item active" data-page="overview"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Dashboard</button>
+      <div class="sidebar-section-label">Cases</div>
+      <button class="sidebar-nav-item" data-page="requests"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg> Emergency Requests</button>
+      <button class="sidebar-nav-item" data-page="active"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 10H6"/><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.28a1 1 0 0 0-.684-.948l-1.923-.641a1 1 0 0 1-.578-.502l-1.539-3.076A1 1 0 0 0 16.382 8H14"/><path d="M8 8v4"/><path d="M9 18h6"/><circle cx="8" cy="18" r="2"/><circle cx="19" cy="18" r="2"/></svg> Active Cases</button>
+      <div class="sidebar-section-label">Settings</div>
+      <button class="sidebar-nav-item" data-page="status"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> My Status</button>
+      <button class="sidebar-nav-item" data-page="profile"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Profile</button>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="sidebar-nav-item" onclick="logout()" style="color:#DC2626"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- ═══ OVERVIEW ════════════════════════════════════════════ -->
+    <div class="page" id="page-overview">
+      <div class="page-header header-blue">
+        <h1 id="greetingText">Welcome, Doctor</h1>
+        <p id="greetingStatus">Update your status to start receiving requests</p>
+      </div>
+      <div class="content-inner">
+
+        <!-- Status Quick Toggle -->
+        <div class="status-toggle-card">
+          <h3 style="font-size:16px;margin-bottom:14px;display:flex;align-items:center;gap:8px">⚡ Quick Status</h3>
+          <div class="status-row">
+            <div>
+              <div class="status-label">Active / Available</div>
+              <div class="status-desc">Show up to patients as an available professional</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="quickActiveToggle" onchange="updateStatus()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="status-row">
+            <div>
+              <div class="status-label">On Duty</div>
+              <div class="status-desc">You are currently on shift and can respond to cases</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="quickDutyToggle" onchange="updateStatus()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="pro-stats">
+          <div class="stat-card">
+            <div class="stat-icon">📋</div>
+            <div class="stat-number" id="statPending">0</div>
+            <div class="stat-label">Pending</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🚑</div>
+            <div class="stat-number" id="statActive">0</div>
+            <div class="stat-label">Active</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-number" id="statCompleted">0</div>
+            <div class="stat-label">Completed</div>
+          </div>
+        </div>
+
+        <!-- Pending Requests Preview -->
+        <div class="section-header">
+          <h3 class="section-title">Pending Requests</h3>
+          <button class="btn btn-ghost btn-sm" onclick="switchPage('requests');loadRequests()">View All</button>
+        </div>
+        <div id="overviewRequests"></div>
+
+        <!-- Active Cases Preview -->
+        <div class="section-header" style="margin-top:20px">
+          <h3 class="section-title">Active Cases</h3>
+          <button class="btn btn-ghost btn-sm" onclick="switchPage('active');loadActiveCases()">View All</button>
+        </div>
+        <div id="overviewActive"></div>
+      </div>
+    </div>
+
+    <!-- ═══ REQUESTS PAGE ════════════════════════════════════════ -->
+    <div class="page" id="page-requests" style="display:none">
+      <div class="page-header header-orange">
+        <h1>Emergency Requests</h1>
+        <p>Incoming patient requests awaiting response</p>
+      </div>
+      <div class="content-inner">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <p style="font-size:13px;color:var(--text-3)">Requests refresh automatically every 30 seconds</p>
+          <button class="btn btn-ghost btn-sm" onclick="loadRequests()">🔄 Refresh</button>
+        </div>
+        <div id="requestsList"></div>
+      </div>
+    </div>
+
+    <!-- ═══ ACTIVE CASES PAGE ════════════════════════════════════ -->
+    <div class="page" id="page-active" style="display:none">
+      <div class="page-header" style="background:var(--green)">
+        <h1>Active Cases</h1>
+        <p>Cases you have accepted and are managing</p>
+      </div>
+      <div class="content-inner">
+        <div id="activeCasesList"></div>
+      </div>
+    </div>
+
+    <!-- ═══ STATUS PAGE ══════════════════════════════════════════ -->
+    <div class="page" id="page-status" style="display:none">
+      <div class="page-header header-blue">
+        <h1>My Status</h1>
+        <p>Manage your availability and duty status</p>
+      </div>
+      <div class="content-inner">
+        <div class="card" style="padding:24px;margin-bottom:16px">
+          <h3 style="font-size:17px;margin-bottom:16px">Availability Settings</h3>
+
+          <div class="status-row">
+            <div>
+              <div class="status-label">Active / Available</div>
+              <div class="status-desc">When enabled, patients can see you as an available professional and send you requests.</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="statusActiveToggle" onchange="syncToggles('active', this.checked)">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="status-row">
+            <div>
+              <div class="status-label">On Duty</div>
+              <div class="status-desc">Toggle when you are actively on shift. This allows patients to request immediate assistance from you.</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="statusDutyToggle" onchange="syncToggles('duty', this.checked)">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="alert alert-info" style="font-size:13px">
+          <span class="alert-icon">ℹ️</span>
+          <span>Remember to turn off your status when you are no longer available. Patients rely on accurate availability information in emergencies.</span>
+        </div>
+
+        <div id="currentStatusDisplay" class="card" style="padding:20px;margin-top:16px;text-align:center"></div>
+      </div>
+    </div>
+
+    <!-- ═══ PROFILE PAGE ══════════════════════════════════════════ -->
+    <div class="page" id="page-profile" style="display:none">
+      <div class="page-header header-blue">
+        <h1>Professional Profile</h1>
+        <p>Your credentials and information</p>
+      </div>
+      <div class="content-inner">
+        <div class="card" style="padding:20px;margin-bottom:16px">
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+            <div style="width:56px;height:56px;background:linear-gradient(135deg,var(--blue),var(--blue-light));border-radius:14px;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:24px" data-user-avatar></div>
+            <div>
+              <div style="font-weight:700;font-size:18px" data-user-name></div>
+              <div style="font-size:13px;color:var(--text-3)" data-user-email></div>
+              <div class="badge badge-blue" style="margin-top:4px">Medical Professional</div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div class="form-group">
+              <label class="form-label">Specialization</label>
+              <select class="form-select" id="spec_field">
+                <option value="">Select specialization</option>
+                <option>Emergency Medicine</option>
+                <option>General Practice</option>
+                <option>Nursing</option>
+                <option>Paramedic</option>
+                <option>Cardiology</option>
+                <option>Pediatrics</option>
+                <option>Surgery</option>
+                <option>Trauma</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Hospital / Facility</label>
+              <input type="text" class="form-input" id="hospital_field" placeholder="e.g. KATH, Korle Bu, Ridge Hospital">
+            </div>
+            <button class="btn btn-blue btn-full" onclick="saveProProfile()">Save Profile</button>
+          </div>
+        </div>
+
+        <div style="background:var(--surface-2);border-radius:var(--radius-sm);padding:14px 16px;font-size:13px;color:var(--text-3)">
+          🔒 Your license number is stored securely and only used for verification.
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ─── BOTTOM NAV ─────────────────────────────────────────────── -->
+<nav class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <button class="bottom-nav-item active" data-page="overview"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</button>
+    <button class="bottom-nav-item" data-page="requests"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>Requests</button>
+    <button class="bottom-nav-item" data-page="active"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 10H6"/><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.28a1 1 0 0 0-.684-.948l-1.923-.641a1 1 0 0 1-.578-.502l-1.539-3.076A1 1 0 0 0 16.382 8H14"/><circle cx="8" cy="18" r="2"/><circle cx="19" cy="18" r="2"/></svg>Active</button>
+    <button class="bottom-nav-item" data-page="status"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Status</button>
+    <button class="bottom-nav-item" data-page="profile"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</button>
+  </div>
+</nav>
+
+<script src="script.js"></script>
+<script>
+if (!requireAuth('professional')) {}
+
+let isActive = false;
+let isOnDuty = false;
+
+// ─── STATUS ────────────────────────────────────────────────────
+async function loadProStatus() {
+  try {
+    const data = await API.get('/professional/profile');
+    isActive = !!data.is_active;
+    isOnDuty = !!data.is_on_duty;
+    updateStatusUI();
+
+    if (data.specialization) document.getElementById('spec_field').value = data.specialization;
+    if (data.hospital) document.getElementById('hospital_field').value = data.hospital;
+  } catch (e) { console.error(e); }
+}
+
+function updateStatusUI() {
+  // Sync all toggles
+  ['quickActiveToggle','statusActiveToggle'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.checked = isActive;
+  });
+  ['quickDutyToggle','statusDutyToggle'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.checked = isOnDuty;
+  });
+
+  // Dots
+  const dot = document.getElementById('navStatusDot');
+  const sdot = document.getElementById('sidebarStatusDot');
+  const stext = document.getElementById('sidebarStatusText');
+
+  if (dot) {
+    dot.className = 'status-dot ' + (isActive && isOnDuty ? 'active' : isActive ? 'pending' : 'inactive');
+  }
+  if (sdot) sdot.className = 'status-dot ' + (isActive && isOnDuty ? 'active' : isActive ? 'pending' : 'inactive');
+  if (stext) stext.textContent = isActive && isOnDuty ? 'On Duty' : isActive ? 'Available' : 'Offline';
+
+  // Status display card
+  const display = document.getElementById('currentStatusDisplay');
+  if (display) {
+    if (isActive && isOnDuty) {
+      display.innerHTML = `<div style="color:var(--green)"><div style="font-size:48px;margin-bottom:8px">🟢</div><h3>You are ON DUTY</h3><p style="font-size:14px;color:var(--text-3);margin-top:8px">Patients can see you as available and you can receive emergency requests.</p></div>`;
+    } else if (isActive) {
+      display.innerHTML = `<div style="color:var(--yellow)"><div style="font-size:48px;margin-bottom:8px">🟡</div><h3>Available (Not On Duty)</h3><p style="font-size:14px;color:var(--text-3);margin-top:8px">You are visible but not on active duty. Enable "On Duty" to receive requests.</p></div>`;
+    } else {
+      display.innerHTML = `<div style="color:var(--text-3)"><div style="font-size:48px;margin-bottom:8px">⚫</div><h3>Offline</h3><p style="font-size:14px;color:var(--text-3);margin-top:8px">You are not visible to patients. Enable "Active" to appear available.</p></div>`;
+    }
+  }
+
+  // Update greeting
+  const greetStatus = document.getElementById('greetingStatus');
+  if (greetStatus) {
+    greetStatus.textContent = isActive && isOnDuty ? '🟢 On Duty — Receiving emergency requests' :
+      isActive ? '🟡 Available — Enable On Duty to receive requests' : '⚫ Offline — Enable status to receive requests';
+  }
+}
+
+function syncToggles(type, val) {
+  if (type === 'active') {
+    isActive = val;
+    ['quickActiveToggle','statusActiveToggle'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.checked = val;
+    });
+  } else {
+    isOnDuty = val;
+    ['quickDutyToggle','statusDutyToggle'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.checked = val;
+    });
+  }
+  updateStatus();
+}
+
+async function updateStatus() {
+  isActive = document.getElementById('quickActiveToggle')?.checked || document.getElementById('statusActiveToggle')?.checked || false;
+  isOnDuty = document.getElementById('quickDutyToggle')?.checked || document.getElementById('statusDutyToggle')?.checked || false;
+
+  try {
+    await API.patch('/professional/status', { is_active: isActive, is_on_duty: isOnDuty });
+    updateStatusUI();
+    const msg = isActive && isOnDuty ? '🟢 You are now On Duty' : isActive ? '🟡 Available but not on duty' : '⚫ Status set to Offline';
+    showToast(msg, isActive ? 'success' : 'default');
+  } catch (err) {
+    showToast('Failed to update status: ' + err.message, 'error');
+  }
+}
+
+// ─── REQUESTS ──────────────────────────────────────────────────
+async function loadRequests() {
+  try {
+    const requests = await API.get('/requests/pending');
+    renderRequests(requests, 'requestsList');
+    renderRequests(requests.slice(0, 3), 'overviewRequests');
+
+    const pendingCount = document.getElementById('statPending');
+    if (pendingCount) pendingCount.textContent = requests.length;
+
+    const reqTab = document.querySelector('[data-page="requests"] .count-badge');
+    if (reqTab) reqTab.textContent = requests.length;
+  } catch (e) { console.error('Load requests error:', e); }
+}
+
+function renderRequests(requests, containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  if (!requests.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📋</div><h3>No pending requests</h3><p>New emergency requests will appear here</p></div>`;
+    return;
+  }
+
+  container.innerHTML = requests.map(r => `
+    <div class="request-card pending">
+      <div class="request-card-header">
+        <div>
+          <div class="request-card-type">🚨 ${r.request_type}</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text-2);margin-top:2px">Patient: ${r.patient_name}</div>
+        </div>
+        <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+          ${statusBadge(r.status)}
+          ${r.professional_id ? '<span class="badge badge-purple">📨 Sent to you</span>' : '<span class="badge badge-gray">📢 Broadcast</span>'}
+          <div class="request-card-time">${timeAgo(r.created_at)}</div>
+        </div>
+      </div>
+      ${r.description ? `<p style="font-size:13px;color:var(--text-3);margin-bottom:10px">${r.description}</p>` : ''}
+      <div class="request-meta">
+        <div class="meta-item"><div class="meta-label">Blood Type</div><div class="meta-value">${r.blood_type || '—'}</div></div>
+        <div class="meta-item"><div class="meta-label">Location</div><div class="meta-value">${r.location || 'Not specified'}</div></div>
+        ${r.allergies ? `<div class="meta-item" style="grid-column:1/-1"><div class="meta-label">Known Allergies</div><div class="meta-value">${r.allergies}</div></div>` : ''}
+        ${r.conditions ? `<div class="meta-item" style="grid-column:1/-1"><div class="meta-label">Medical Conditions</div><div class="meta-value">${r.conditions}</div></div>` : ''}
+      </div>
+      <div class="request-card-actions">
+        <button class="btn btn-success btn-sm" onclick="updateRequestStatus('${r.id}', 'accepted')">✅ Accept Request</button>
+        <button class="btn btn-ghost btn-sm" onclick="updateRequestStatus('${r.id}', 'cancelled')">✖ Decline</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function loadActiveCases() {
+  try {
+    const cases = await API.get('/requests/active');
+    renderActiveCases(cases, 'activeCasesList');
+    renderActiveCases(cases.slice(0, 2), 'overviewActive');
+
+    const activeCount = document.getElementById('statActive');
+    if (activeCount) activeCount.textContent = cases.length;
+  } catch (e) { console.error('Load active error:', e); }
+}
+
+function renderActiveCases(cases, containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  if (!cases.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🚑</div><h3>No active cases</h3><p>Accept a request to see it here</p></div>`;
+    return;
+  }
+
+  container.innerHTML = cases.map(r => `
+    <div class="request-card ${r.status}">
+      <div class="request-card-header">
+        <div>
+          <div class="request-card-type">🚨 ${r.request_type}</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text-2);margin-top:2px">Patient: ${r.patient_name}</div>
+          <div style="font-size:12px;color:var(--text-3)">${r.patient_email}</div>
+        </div>
+        <div style="text-align:right">
+          ${statusBadge(r.status)}
+          <div class="request-card-time" style="margin-top:4px">${timeAgo(r.created_at)}</div>
+        </div>
+      </div>
+      <div class="request-meta">
+        <div class="meta-item"><div class="meta-label">Blood Type</div><div class="meta-value">${r.blood_type || '—'}</div></div>
+        <div class="meta-item"><div class="meta-label">Location</div><div class="meta-value">${r.location || 'Not specified'}</div></div>
+        ${r.allergies ? `<div class="meta-item" style="grid-column:1/-1"><div class="meta-label">Allergies</div><div class="meta-value" style="color:var(--red)">${r.allergies}</div></div>` : ''}
+        ${r.medications ? `<div class="meta-item" style="grid-column:1/-1"><div class="meta-label">Medications</div><div class="meta-value">${r.medications}</div></div>` : ''}
+        ${r.conditions ? `<div class="meta-item" style="grid-column:1/-1"><div class="meta-label">Conditions</div><div class="meta-value">${r.conditions}</div></div>` : ''}
+        ${r.description ? `<div class="meta-item" style="grid-column:1/-1"><div class="meta-label">Description</div><div class="meta-value">${r.description}</div></div>` : ''}
+      </div>
+      <div class="request-card-actions">
+        ${r.status === 'accepted' ? `<button class="btn btn-blue btn-sm" onclick="updateRequestStatus('${r.id}', 'on_the_way')">🚑 On the Way</button>` : ''}
+        ${r.status === 'on_the_way' ? `<button class="btn btn-success btn-sm" onclick="updateRequestStatus('${r.id}', 'completed')">✅ Mark Completed</button>` : ''}
+        <a href="tel:${r.patient_email}" class="btn btn-ghost btn-sm">📧 Email Patient</a>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function updateRequestStatus(id, status) {
+  const statusLabels = {
+    accepted: 'accepted',
+    on_the_way: 'on the way',
+    completed: 'completed',
+    cancelled: 'declined'
+  };
+
+  try {
+    await API.patch(`/requests/${id}/status`, { status });
+    showToast(`Request marked as ${statusLabels[status]}`, 'success');
+    await Promise.all([loadRequests(), loadActiveCases()]);
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function saveProProfile() {
+  try {
+    await API.put('/professional/profile', {
+      specialization: document.getElementById('spec_field').value,
+      hospital: document.getElementById('hospital_field').value,
+    });
+    showToast('Profile updated!', 'success');
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+// ─── PAGE SWITCHING ────────────────────────────────────────────
+const origSwitch = window.switchPage;
+window.switchPage = function(pageId) {
+  origSwitch && origSwitch(pageId);
+  if (pageId === 'requests') loadRequests();
+  if (pageId === 'active') loadActiveCases();
+  if (pageId === 'status') loadProStatus();
+};
+
+// ─── INIT ──────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  switchPage('overview');
+
+  const user = API.getUser();
+  if (user) {
+    const greet = document.getElementById('greetingText');
+    if (greet) greet.textContent = `Welcome, ${user.full_name.split(' ')[0]}!`;
+  }
+
+  loadProStatus();
+  loadRequests();
+  loadActiveCases();
+
+  // Auto-refresh every 30 seconds
+  setInterval(() => {
+    loadRequests();
+    loadActiveCases();
+  }, 30000);
+
+  document.getElementById('hamburgerBtn')?.addEventListener('click', () => {
+    document.getElementById('mainSidebar').classList.toggle('mobile-open');
+    document.getElementById('sidebarOverlay').classList.toggle('open');
+  });
+  document.getElementById('sidebarOverlay').addEventListener('click', () => {
+    document.getElementById('mainSidebar').classList.remove('mobile-open');
+    document.getElementById('sidebarOverlay').classList.remove('open');
+  });
+});
+</script>
+</body>
+</html>

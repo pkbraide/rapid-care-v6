@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Rapid Care Ghana</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .hero-banner {
+      background: linear-gradient(135deg, var(--red) 0%, #990000 100%);
+      color: white;
+      padding: 28px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-banner::after {
+      content: '🏥';
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 80px;
+      opacity: 0.15;
+    }
+    .hero-banner .badge-bar {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .sos-btn {
+      background: white;
+      color: var(--red);
+      border: none;
+      padding: 14px 28px;
+      border-radius: var(--radius-sm);
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      transition: var(--transition);
+      margin-top: 16px;
+    }
+    .sos-btn:hover { transform: scale(1.04); box-shadow: 0 6px 24px rgba(0,0,0,0.25); }
+    .sos-btn:active { transform: scale(0.98); }
+
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .quick-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 18px 16px;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .quick-card:hover { box-shadow: var(--shadow); border-color: currentColor; transform: translateY(-2px); }
+    .quick-card .badge { position: absolute; top: 12px; right: 12px; }
+    .quick-card .qc-icon { font-size: 28px; margin-bottom: 10px; }
+    .quick-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+    .quick-card p { font-size: 12px; color: var(--text-3); line-height: 1.4; }
+
+    .quick-card-sos {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, #FFF5F5, #FFEBEB);
+      border-color: #FECACA;
+    }
+    .quick-card-sos:hover { border-color: var(--red); }
+
+    .first-aid-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .first-aid-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .first-aid-card:hover { box-shadow: var(--shadow); border-color: var(--red); }
+    .first-aid-card .fa-icon { font-size: 24px; flex-shrink: 0; }
+    .first-aid-card h5 { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+    .first-aid-card p { font-size: 11px; color: var(--text-3); }
+
+    .emergency-num-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+    .emergency-num-card:hover { box-shadow: var(--shadow); }
+
+    .symptom-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .symptom-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 14px;
+    }
+    .symptom-item:hover { border-color: var(--red); background: #FFF5F5; }
+    .symptom-item input[type="checkbox"] { accent-color: var(--red); width: 16px; height: 16px; }
+    .symptom-item.critical-sym { border-left: 3px solid var(--red); }
+
+    .assessment-result {
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-top: 16px;
+    }
+    .assessment-critical { background: #FEE2E2; border: 1px solid #FCA5A5; }
+    .assessment-moderate { background: #FFFBEB; border: 1px solid #FCD34D; }
+    .assessment-mild { background: #F0FDF4; border: 1px solid #86EFAC; }
+
+    @media (max-width: 480px) {
+      .quick-grid { grid-template-columns: 1fr 1fr; }
+      .first-aid-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── NAVBAR ─────────────────────────────────────────────────── -->
+<nav class="navbar">
+  <button class="navbar-hamburger" id="hamburgerBtn" title="Menu">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <div class="navbar-brand">
+    <img src="logo.jpg" alt="Rapid Care" class="navbar-logo">
+    <span>Rapid Care</span>
+  </div>
+  <div class="navbar-spacer"></div>
+  <div class="navbar-actions">
+    <button class="dark-toggle" onclick="toggleDarkMode()" id="darkToggleNav"></button>
+    <div class="avatar-wrapper">
+      <button class="avatar-btn" id="avatarBtn" title="Account menu"></button>
+      <div class="avatar-dropdown" id="avatarDropdown">
+        <div class="dropdown-header">
+          <div class="d-name" data-user-name></div>
+          <div class="d-email" data-user-email></div>
+          <div class="d-role">Patient</div>
+        </div>
+        <button class="dropdown-item" onclick="switchPage('profile');document.getElementById('avatarDropdown').classList.remove('open')">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          My Profile
+        </button>
+        <button class="dropdown-item" onclick="toggleDarkMode()">
+          <svg xmlns="http://www.w3.org/2000/svg" id="dropdownThemeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          Toggle Dark Mode
+        </button>
+        <button class="dropdown-item" onclick="logout()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sign Out
+        </button>
+        <button class="dropdown-item danger" onclick="deleteAccount()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          Delete Account
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ─── SIDEBAR OVERLAY ────────────────────────────────────────── -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ─── APP LAYOUT ──────────────────────────────────────────────── -->
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="mainSidebar">
+    <div class="sidebar-profile">
+      <div class="sidebar-avatar" data-user-avatar></div>
+      <div class="sidebar-name" data-user-name>Loading...</div>
+      <div class="sidebar-role" data-user-role>General User</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Navigation</div>
+      <button class="sidebar-nav-item active" data-page="home"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Dashboard</button>
+      <button class="sidebar-nav-item" data-page="sos"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.15 12 19.79 19.79 0 0 1 1.08 3.4 2 2 0 0 1 3.06 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> Emergency SOS</button>
+      <button class="sidebar-nav-item" data-page="firstaid"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> First Aid Guides</button>
+      <button class="sidebar-nav-item" data-page="symptoms"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Symptom Checker</button>
+      <div class="sidebar-section-label">Help</div>
+      <button class="sidebar-nav-item" data-page="request"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 10H6"/><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.28a1 1 0 0 0-.684-.948l-1.923-.641a1 1 0 0 1-.578-.502l-1.539-3.076A1 1 0 0 0 16.382 8H14"/><path d="M8 8v4"/><path d="M9 18h6"/><circle cx="8" cy="18" r="2"/><circle cx="19" cy="18" r="2"/></svg> Request Professional</button>
+      <button class="sidebar-nav-item" data-page="myrequests"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg> My Requests</button>
+      <button class="sidebar-nav-item" data-page="contacts"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Emergency Contacts</button>
+      <button class="sidebar-nav-item" data-page="profile"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Medical Profile</button>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="sidebar-nav-item" onclick="logout()" style="color:#DC2626"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- ═══ HOME PAGE ═══════════════════════════════════════════ -->
+    <div class="page" id="page-home">
+      <!-- Hero Banner -->
+      <div class="hero-banner">
+        <div class="badge-bar">🛡️ Available 24/7 for emergencies</div>
+        <h1 style="font-size:clamp(20px,4vw,30px)">Emergency Care at Your Fingertips</h1>
+        <p style="opacity:.85;font-size:14px;margin-top:6px;max-width:400px">Access life-saving information, emergency services, and medical guidance instantly.</p>
+        <button class="sos-btn" onclick="switchPage('sos')" style="display:inline-flex;align-items:center;gap:8px"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.15 12 19.79 19.79 0 0 1 1.08 3.4 2 2 0 0 1 3.06 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> Emergency SOS</button>
+      </div>
+
+      <div class="content-inner">
+        <div class="alert alert-warning" style="margin-bottom:24px">
+          <span class="alert-icon">⚠️</span>
+          <span><strong>Life-threatening emergency?</strong> Call <strong>112</strong> immediately. This platform provides information but is not a substitute for emergency services.</span>
+        </div>
+
+        <!-- Active request tracker on home page -->
+        <div id="home-request-tracker" style="display:none;margin-bottom:20px">
+          <div class="section-header"><h3 class="section-title" style="font-size:16px">🚑 Active Request</h3>
+            <button class="btn btn-ghost btn-sm" onclick="switchPage('myrequests')">View All</button>
+          </div>
+          <div id="home-tracker-card"></div>
+        </div>
+
+        <!-- Quick Access -->
+        <div class="section">
+          <div class="section-header"><h2 class="section-title">Quick Access</h2></div>
+          <div class="quick-grid">
+            <div class="quick-card" onclick="switchPage('request')" style="border-color:#BFDBFE;background:linear-gradient(135deg,#EFF6FF,#DBEAFE)">
+              <span class="badge badge-blue">Live</span>
+              <div class="qc-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 10H6"/><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.28a1 1 0 0 0-.684-.948l-1.923-.641a1 1 0 0 1-.578-.502l-1.539-3.076A1 1 0 0 0 16.382 8H14"/><path d="M8 8v4"/><path d="M9 18h6"/><circle cx="8" cy="18" r="2"/><circle cx="19" cy="18" r="2"/></svg></div>
+              <h4>Request a Professional</h4>
+              <p>Find and request an active doctor, nurse, or paramedic near you</p>
+            </div>
+            <div class="quick-card" onclick="switchPage('myrequests')" style="border-color:#D1FAE5;background:linear-gradient(135deg,#F0FDF4,#DCFCE7)">
+              <span class="badge badge-green">Track</span>
+              <div class="qc-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></div>
+              <h4>My Requests</h4>
+              <p>View and track the status of your medical assistance requests</p>
+            </div>
+            <div class="quick-card" onclick="switchPage('firstaid')">
+              <span class="badge badge-red">9 Guides</span>
+              <div class="qc-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+              <h4>First Aid Guides</h4>
+              <p>Step-by-step CPR, choking, bleeding, burns and more</p>
+            </div>
+            <div class="quick-card" onclick="switchPage('symptoms')">
+              <span class="badge badge-green">Smart Tool</span>
+              <div class="qc-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+              <h4>Symptom Checker</h4>
+              <p>Assess symptoms and get guidance on urgency level</p>
+            </div>
+            <div class="quick-card" onclick="switchPage('contacts')">
+              <span class="badge badge-blue">Quick Dial</span>
+              <div class="qc-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+              <h4>Emergency Contacts</h4>
+              <p>Store and quickly access your emergency contacts</p>
+            </div>
+            <div class="quick-card" onclick="switchPage('profile')">
+              <span class="badge badge-orange">Critical Info</span>
+              <div class="qc-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+              <h4>Medical Profile</h4>
+              <p>Allergies, medications, blood type for quick reference</p>
+            </div>
+            <div class="quick-card quick-card-sos" onclick="switchPage('sos')">
+              <span class="badge badge-red">24/7 Available</span>
+              <div class="qc-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.15 12 19.79 19.79 0 0 1 1.08 3.4 2 2 0 0 1 3.06 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
+              <h4>Emergency Services (SOS)</h4>
+              <p>Instant access to 112, poison control, crisis helplines, and nearby hospital locator</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Feature highlights -->
+        <div class="section">
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div class="card" style="padding:16px;display:flex;align-items:center;gap:14px">
+              <div style="font-size:28px">⚡</div>
+              <div>
+                <div style="font-weight:700;font-size:15px">Instant Access</div>
+                <div style="font-size:13px;color:var(--text-3)">Get life-saving information in seconds. No sign-up required for basic info, works offline.</div>
+              </div>
+            </div>
+            <div class="card" style="padding:16px;display:flex;align-items:center;gap:14px">
+              <div style="font-size:28px">🔒</div>
+              <div>
+                <div style="font-weight:700;font-size:15px">Privacy First</div>
+                <div style="font-size:13px;color:var(--text-3)">Your medical data stays on your device. Never transmitted or shared.</div>
+              </div>
+            </div>
+            <div class="card" style="padding:16px;display:flex;align-items:center;gap:14px">
+              <div style="font-size:28px">❤️</div>
+              <div>
+                <div style="font-weight:700;font-size:15px">Medically Reviewed</div>
+                <div style="font-size:13px;color:var(--text-3)">First aid guides based on current medical standards and best practices.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Safety Guidelines -->
+        <div style="background:var(--text);border-radius:var(--radius);padding:24px;color:white">
+          <h3 style="color:white;margin-bottom:16px;font-size:17px">Essential Safety Guidelines</h3>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <div style="width:26px;height:26px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">1</div>
+              <div><strong style="font-size:14px">Call 112 for Life-Threatening Emergencies</strong><br><span style="font-size:12px;opacity:.7">Severe bleeding, chest pain, difficulty breathing, loss of consciousness, or any immediate danger to life.</span></div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <div style="width:26px;height:26px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">2</div>
+              <div><strong style="font-size:14px">First Aid is Not Medical Treatment</strong><br><span style="font-size:12px;opacity:.7">Our guides provide emergency assistance until professional help arrives. Always seek proper medical care.</span></div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <div style="width:26px;height:26px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">3</div>
+              <div><strong style="font-size:14px">Keep Information Updated</strong><br><span style="font-size:12px;opacity:.7">Regularly update your medical profile and emergency contacts to ensure accuracy when seconds matter.</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SOS PAGE ═════════════════════════════════════════════ -->
+    <div class="page" id="page-sos" style="display:none">
+      <div class="page-header header-red">
+        <h1>Emergency Services</h1>
+        <p>Instant access to critical emergency assistance</p>
+      </div>
+      <div class="content-inner">
+        <!-- 911 card -->
+        <div style="background:var(--surface);border:2px solid var(--red);border-radius:var(--radius);padding:24px;text-align:center;margin-bottom:16px">
+          <div style="font-size:48px;margin-bottom:12px">🚑</div>
+          <h2>Life-Threatening Emergency</h2>
+          <p style="color:var(--text-3);margin:8px 0 16px;font-size:14px">Call 112 for immediate medical, fire, or police assistance</p>
+          <a href="tel:112" class="btn btn-primary btn-full btn-lg">📞 Call 112 Now</a>
+        </div>
+
+        <!-- When to call -->
+        <div class="alert alert-warning" style="margin-bottom:16px">
+          <div>
+            <strong style="font-size:13px">When to call 112:</strong>
+            <ul style="margin-top:8px;font-size:13px;padding-left:16px;line-height:2">
+              <li>Severe bleeding or chest pain</li>
+              <li>Difficulty breathing</li>
+              <li>Loss of consciousness</li>
+              <li>Stroke symptoms (face drooping, arm weakness, speech difficulty)</li>
+              <li>Severe injuries or burns</li>
+              <li>Any life-threatening situation</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Other numbers -->
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+              <div style="font-size:28px">☠️</div>
+              <div><div style="font-weight:700">Poison Control</div><div style="font-size:12px;color:var(--text-3)">KATH Poison Unit — 24/7</div></div>
+            </div>
+            <a href="tel:+233322060401" class="btn btn-orange btn-full">📞 Call +233-322-060-401</a>
+          </div>
+
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+              <div style="font-size:28px">🧠</div>
+              <div><div style="font-weight:700">Mental Health / Crisis Helpline</div><div style="font-size:12px;color:var(--text-3)">Suicide & crisis support</div></div>
+            </div>
+            <a href="tel:0800111222" class="btn btn-blue btn-full">📞 Call 0800-111-222</a>
+          </div>
+
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+              <div style="font-size:28px">🚓</div>
+              <div><div style="font-weight:700">Ghana Police Service</div><div style="font-size:12px;color:var(--text-3)">For security emergencies</div></div>
+            </div>
+            <a href="tel:191" class="btn btn-ghost btn-full">📞 Call 191</a>
+          </div>
+
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+              <div style="font-size:28px">🔥</div>
+              <div><div style="font-weight:700">Ghana Fire & Ambulance</div><div style="font-size:12px;color:var(--text-3)">Fire service and ambulance</div></div>
+            </div>
+            <a href="tel:192" class="btn btn-ghost btn-full">📞 Call 192</a>
+          </div>
+
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+              <div style="font-size:28px">🏥</div>
+              <div><div style="font-weight:700">Ghana Health Service</div><div style="font-size:12px;color:var(--text-3)">National health hotline</div></div>
+            </div>
+            <a href="tel:0800110011" class="btn btn-ghost btn-full">📞 Call 0800-110-011</a>
+          </div>
+
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+              <div style="font-size:28px">📍</div>
+              <div><div style="font-weight:700">Find Nearest Hospital</div><div style="font-size:12px;color:var(--text-3)">Locate emergency rooms near you</div></div>
+            </div>
+            <a href="https://maps.google.com?q=hospital+near+me" target="_blank" class="btn btn-success btn-full">📍 Open Maps</a>
+          </div>
+        </div>
+
+        <!-- What to tell dispatcher -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-top:16px">
+          <h3 style="margin-bottom:12px;font-size:16px">What to Tell the Dispatcher</h3>
+          <p style="font-size:13px;color:var(--text-3);margin-bottom:14px">Have this information ready when calling emergency services</p>
+          <div class="grid-2" style="gap:10px">
+            <div style="font-size:13px"><span style="color:var(--red);font-weight:700">1.</span> <strong>Your Location</strong><br><span style="color:var(--text-3)">Exact address and phone number</span></div>
+            <div style="font-size:13px"><span style="color:var(--red);font-weight:700">4.</span> <strong>Condition of Patient(s)</strong><br><span style="color:var(--text-3)">Conscious, breathing, bleeding, etc.</span></div>
+            <div style="font-size:13px"><span style="color:var(--red);font-weight:700">2.</span> <strong>What Happened</strong><br><span style="color:var(--text-3)">Brief description of emergency</span></div>
+            <div style="font-size:13px"><span style="color:var(--red);font-weight:700">5.</span> <strong>Immediate Dangers</strong><br><span style="color:var(--text-3)">Fire, weapons, hazards present</span></div>
+            <div style="font-size:13px"><span style="color:var(--red);font-weight:700">3.</span> <strong>Number of Victims</strong><br><span style="color:var(--text-3)">How many people need help</span></div>
+            <div style="font-size:13px"><span style="color:var(--red);font-weight:700">6.</span> <strong>Follow Instructions</strong><br><span style="color:var(--text-3)">Stay on the line until told to hang up</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ FIRST AID PAGE ═══════════════════════════════════════ -->
+    <div class="page" id="page-firstaid" style="display:none">
+      <div class="page-header header-blue">
+        <h1>First Aid Guides</h1>
+        <p>Comprehensive step-by-step emergency instructions</p>
+      </div>
+      <div class="content-inner">
+        <div style="margin-bottom:16px">
+          <input type="text" class="form-input" id="faSearch" placeholder="🔍 Search first aid topics..." oninput="filterFirstAid(this.value)">
+        </div>
+
+        <div id="firstAidGrid" class="first-aid-grid" style="margin-bottom:20px"></div>
+
+        <!-- Guide Detail Modal -->
+        <div class="alert alert-warning">
+          <span class="alert-icon">⚠️</span>
+          <span><strong>Important Medical Disclaimer:</strong> These guides are for educational purposes only and do not replace professional medical advice. In a life-threatening emergency, always call 112 first.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SYMPTOMS PAGE ════════════════════════════════════════ -->
+    <div class="page" id="page-symptoms" style="display:none">
+      <div class="page-header header-green">
+        <h1>Symptom Checker</h1>
+        <p>Assess your symptoms and receive guidance on next steps</p>
+      </div>
+      <div class="content-inner">
+        <div class="alert alert-danger" style="margin-bottom:20px">
+          <span class="alert-icon">⚠️</span>
+          <span><strong>This is not a medical diagnosis.</strong> If you're experiencing a medical emergency, call 112 immediately.</span>
+        </div>
+
+        <div id="symptom-form">
+          <!-- Symptom groups filled by JS -->
+        </div>
+
+        <button class="btn btn-primary btn-full btn-lg" style="margin-top:16px" id="assessBtn" onclick="assessSymptoms()">
+          Assess Symptoms
+        </button>
+
+        <div id="assessment-result" style="display:none"></div>
+
+        <div class="alert alert-info" style="margin-top:20px;font-size:13px">
+          <span class="alert-icon">ℹ️</span>
+          <span>This symptom checker is for informational purposes only and is not intended to be a substitute for professional medical advice. Always seek the advice of your physician with any questions about a medical condition.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ CONTACTS PAGE ════════════════════════════════════════ -->
+    <div class="page" id="page-contacts" style="display:none">
+      <div class="page-header header-blue">
+        <h1>Emergency Contacts</h1>
+        <p>Quick access to important people</p>
+      </div>
+      <div class="content-inner">
+        <div style="background:var(--surface-2);border-radius:var(--radius-sm);padding:12px 14px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-2);margin-bottom:14px">
+          👥 Add family members, friends, or caregivers who should be contacted in an emergency.
+        </div>
+        <button class="btn btn-primary btn-full" style="margin-bottom:16px" onclick="openContactModal()">
+          ＋ Add Emergency Contact
+        </button>
+        <div id="contacts-list"></div>
+        <div style="background:var(--surface-2);border-radius:var(--radius-sm);padding:10px 14px;text-align:center;font-size:12px;color:var(--text-3);margin-top:12px">
+          🔒 Contact information is stored locally on your device and never shared.
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ MEDICAL PROFILE PAGE ══════════════════════════════════ -->
+    <div class="page" id="page-profile" style="display:none">
+      <div class="page-header header-purple">
+        <h1>Medical Profile</h1>
+        <p>Emergency medical information</p>
+      </div>
+      <div class="content-inner">
+        <div class="alert alert-info" style="margin-bottom:16px;font-size:13px">
+          <span class="alert-icon">ℹ️</span>
+          <span>This information can be accessed quickly in emergencies. Keep it updated and accurate.</span>
+        </div>
+        <button class="btn btn-success btn-full" style="margin-bottom:20px" id="saveProfileBtn" onclick="saveProfile()">
+          💾 Save Changes
+        </button>
+
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <!-- Personal Info -->
+          <div class="card" style="padding:20px">
+            <h3 style="font-size:16px;margin-bottom:14px;display:flex;align-items:center;gap:8px">👤 Personal Information</h3>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-input" id="prof_name" placeholder="John Doe">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Date of Birth</label>
+                <input type="date" class="form-input" id="prof_dob">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Blood Type</label>
+                <select class="form-select" id="prof_blood">
+                  <option value="">Select blood type</option>
+                  <option>A+</option><option>A-</option>
+                  <option>B+</option><option>B-</option>
+                  <option>AB+</option><option>AB-</option>
+                  <option>O+</option><option>O-</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Medical Info -->
+          <div class="card" style="padding:20px">
+            <h3 style="font-size:16px;margin-bottom:4px;display:flex;align-items:center;gap:8px">💊 Medical Information</h3>
+            <p style="font-size:12px;color:var(--text-3);margin-bottom:14px">Critical information for emergency responders</p>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div class="form-group">
+                <label class="form-label" style="color:var(--red)">Allergies <span style="color:var(--red)">*Important*</span></label>
+                <textarea class="form-textarea" id="prof_allergies" placeholder="List all allergies (medications, foods, environmental)..."></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Current Medications</label>
+                <textarea class="form-textarea" id="prof_medications" placeholder="List all current medications and dosages..."></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Medical Conditions</label>
+                <textarea class="form-textarea" id="prof_conditions" placeholder="Chronic conditions, past surgeries, etc..."></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Emergency Contact -->
+          <div class="card" style="padding:20px">
+            <h3 style="font-size:16px;margin-bottom:14px;display:flex;align-items:center;gap:8px">📞 Emergency Contact</h3>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div class="form-group">
+                <label class="form-label">Contact Name</label>
+                <input type="text" class="form-input" id="prof_contact_name" placeholder="Name of emergency contact">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Contact Phone</label>
+                <input type="tel" class="form-input" id="prof_contact_phone" placeholder="+233 XXX XXX XXXX">
+              </div>
+            </div>
+          </div>
+
+          <!-- Additional -->
+          <div class="card" style="padding:20px">
+            <h3 style="font-size:16px;margin-bottom:14px">📋 Additional Information</h3>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div class="form-group">
+                <label class="form-label">Insurance Information</label>
+                <input type="text" class="form-input" id="prof_insurance" placeholder="Insurance provider, policy number, etc...">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Additional Notes</label>
+                <textarea class="form-textarea" id="prof_notes" placeholder="Any other important medical information..."></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p style="font-size:11px;color:var(--text-3);text-align:center;margin-top:16px;line-height:1.6">
+          🔒 Your medical information is stored securely on your device only and is never transmitted or shared. Make sure to back up this information separately.
+        </p>
+      </div>
+    </div>
+
+    <!-- ═══ REQUEST PROFESSIONAL PAGE ══════════════════════════ -->
+    <div class="page" id="page-request" style="display:none">
+      <div class="page-header header-blue">
+        <h1>Request a Professional</h1>
+        <p>Browse active healthcare professionals and send a request</p>
+      </div>
+      <div class="content-inner">
+
+        <div class="alert alert-danger" style="margin-bottom:20px">
+          <span class="alert-icon">🚨</span>
+          <span><strong>Life-threatening emergency?</strong> Don't wait — call <a href="tel:112" style="color:inherit;font-weight:800;text-decoration:underline">112</a> immediately.</span>
+        </div>
+
+        <!-- Active professionals list -->
+        <div class="section-header" style="margin-bottom:12px">
+          <h3 class="section-title">Active Professionals</h3>
+          <button class="btn btn-ghost btn-sm" onclick="loadActiveProfessionals()">🔄 Refresh</button>
+        </div>
+
+        <div id="pros-list" style="margin-bottom:24px">
+          <div class="empty-state"><div class="empty-state-icon" style="font-size:36px">⏳</div><p>Loading professionals...</p></div>
+        </div>
+
+        <!-- Send a general request (no specific professional) -->
+        <div style="background:var(--surface);border:1.5px dashed var(--border);border-radius:var(--radius);padding:20px;text-align:center">
+          <div style="font-size:36px;margin-bottom:10px">📢</div>
+          <h4 style="margin-bottom:6px">Broadcast Request</h4>
+          <p style="font-size:13px;color:var(--text-3);margin-bottom:14px">Send a general request visible to ALL active professionals. The first available one will accept it.</p>
+          <button class="btn btn-primary" onclick="openRequestModal(null, null)">Send Broadcast Request</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══ MY REQUESTS PAGE ══════════════════════════════════════ -->
+    <div class="page" id="page-myrequests" style="display:none">
+      <div class="page-header header-green">
+        <h1>My Requests</h1>
+        <p>Track the status of your medical assistance requests</p>
+      </div>
+      <div class="content-inner">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
+          <button class="btn btn-ghost btn-sm" onclick="loadMyRequests()">🔄 Refresh</button>
+        </div>
+        <div id="my-requests-list"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ─── BOTTOM NAV ─────────────────────────────────────────────── -->
+<nav class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <button class="bottom-nav-item active" data-page="home"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</button>
+    <button class="bottom-nav-item" data-page="sos"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.15 12 19.79 19.79 0 0 1 1.08 3.4 2 2 0 0 1 3.06 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>SOS</button>
+    <button class="bottom-nav-item" data-page="request"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 10H6"/><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.28a1 1 0 0 0-.684-.948l-1.923-.641a1 1 0 0 1-.578-.502l-1.539-3.076A1 1 0 0 0 16.382 8H14"/><path d="M8 8v4"/><path d="M9 18h6"/><circle cx="8" cy="18" r="2"/><circle cx="19" cy="18" r="2"/></svg>Request</button>
+    <button class="bottom-nav-item" data-page="myrequests"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>My Req.</button>
+    <button class="bottom-nav-item" data-page="profile"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</button>
+  </div>
+</nav>
+
+<!-- ─── ADD CONTACT MODAL ──────────────────────────────────────── -->
+<div class="modal-overlay" id="contactModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add Emergency Contact</div>
+      <button class="modal-close" onclick="closeContactModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Contact Name *</label>
+        <input type="text" class="form-input" id="new_contact_name" placeholder="Full name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone Number *</label>
+        <input type="tel" class="form-input" id="new_contact_phone" placeholder="+233 XXX XXX XXXX">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Relationship</label>
+        <select class="form-select" id="new_contact_rel">
+          <option value="">Select relationship</option>
+          <option>Spouse/Partner</option>
+          <option>Parent</option>
+          <option>Child</option>
+          <option>Sibling</option>
+          <option>Friend</option>
+          <option>Doctor</option>
+          <option>Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost flex-1" onclick="closeContactModal()">Cancel</button>
+      <button class="btn btn-primary flex-1" onclick="addContact()">Add Contact</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── REQUEST PROFESSIONAL MODAL ────────────────────────────── -->
+<div class="modal-overlay" id="requestModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="requestModalTitle">Send Request</div>
+      <button class="modal-close" onclick="closeRequestModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="requestModalPro" style="display:none;background:var(--surface-2);border-radius:var(--radius-sm);padding:12px;margin-bottom:4px"></div>
+      <div class="form-group">
+        <label class="form-label">Type of Assistance *</label>
+        <select class="form-select" id="req_type">
+          <option value="">Select type...</option>
+          <option value="Medical Emergency">Medical Emergency</option>
+          <option value="Injury / Wound">Injury / Wound</option>
+          <option value="Breathing Difficulty">Breathing Difficulty</option>
+          <option value="Chest Pain">Chest Pain</option>
+          <option value="Unconscious Patient">Unconscious Patient</option>
+          <option value="Fever / Illness">Fever / Illness</option>
+          <option value="Pregnancy / Childbirth">Pregnancy / Childbirth</option>
+          <option value="Poisoning / Overdose">Poisoning / Overdose</option>
+          <option value="Mental Health Crisis">Mental Health Crisis</option>
+          <option value="General Consultation">General Consultation</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your Location</label>
+        <input type="text" class="form-input" id="req_location" placeholder="e.g. Adum, Kumasi / House No. C5, Airport Res.">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" id="req_description" placeholder="Briefly describe your situation, symptoms, or what help you need..."></textarea>
+      </div>
+      <div class="alert alert-warning" style="font-size:13px">
+        <span class="alert-icon">ℹ️</span>
+        <span>Your medical profile (blood type, allergies, conditions) will be shared with the professional who accepts this request.</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost flex-1" onclick="closeRequestModal()">Cancel</button>
+      <button class="btn btn-primary flex-1" id="sendRequestBtn" onclick="submitRequest()">🚑 Send Request</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── FIRST AID GUIDE MODAL ──────────────────────────────────── -->
+<div class="modal-overlay" id="guideModal">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header">
+      <div class="modal-title" id="guideModalTitle">Guide</div>
+      <button class="modal-close" onclick="closeGuideModal()">✕</button>
+    </div>
+    <div class="modal-body" id="guideModalBody" style="max-height:70vh;overflow-y:auto"></div>
+    <div class="modal-footer">
+      <a href="tel:112" class="btn btn-primary flex-1">📞 Call 112</a>
+      <button class="btn btn-ghost flex-1" onclick="closeGuideModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+// ─── AUTH GUARD ────────────────────────────────────────────────
+if (!requireAuth('patient')) {
+  // redirects automatically
+}
+
+// ─── FIRST AID DATA ────────────────────────────────────────────
+const firstAidGuides = [
+  {
+    id: 'cpr', icon: '❤️', title: 'CPR', subtitle: 'Cardiopulmonary resuscitation', critical: true,
+    steps: ['Call 112 immediately or have someone else call.', 'Place the person on their back on a firm surface.', 'Tilt the head back and lift the chin to open the airway.', 'Check for normal breathing (no more than 10 seconds).', 'Place the heel of your hand on the center of the chest. Put your other hand on top.', 'Push down hard and fast — at least 2 inches deep, 100-120 compressions per minute. (To the rhythm of "Stayin\' Alive")','After 30 compressions, give 2 rescue breaths (if trained).', 'Continue until the person starts breathing or help arrives.'],
+    warning: '⚠️ CPR should be learned in a certified course for best results.'
+  },
+  {
+    id: 'choking', icon: '💨', title: 'Choking', subtitle: 'Heimlich maneuver', critical: true,
+    steps: ['Ask "Are you choking?" — if they can\'t speak, cough, or breathe, act immediately.', 'Stand behind the person and lean them slightly forward.', 'Give 5 firm back blows between shoulder blades with the heel of your hand.', 'Give 5 abdominal thrusts (Heimlich): make a fist, place above belly button, grasp with other hand, thrust inward and upward.', 'Alternate between 5 back blows and 5 abdominal thrusts.', 'If the person becomes unconscious, begin CPR and call 112.'],
+    warning: '⚠️ For infants under 1 year, use back blows and chest thrusts ONLY — never abdominal thrusts.'
+  },
+  {
+    id: 'bleeding', icon: '🩸', title: 'Severe Bleeding', subtitle: 'Control heavy bleeding', critical: true,
+    steps: ['Call 112 for severe or uncontrolled bleeding.', 'Protect yourself — use gloves or a plastic bag if available.', 'Apply firm, direct pressure using a clean cloth or bandage.', 'Press continuously for at least 10-15 minutes. Do not lift the cloth.', 'If blood soaks through, add more cloth on top (don\'t remove the first layer).', 'If it\'s a limb and the bleeding is life-threatening, apply a tourniquet 2-3 inches above the wound.', 'Note the time the tourniquet was applied. Keep the person warm and calm.'],
+    warning: '⚠️ Do not remove objects embedded in a wound. Apply pressure around them instead.'
+  },
+  {
+    id: 'burns', icon: '🔥', title: 'Burns', subtitle: 'Treat thermal burns', critical: false,
+    steps: ['For minor burns: Run cool (not cold) water over the burn for 10-20 minutes.', 'Do NOT use ice, butter, toothpaste, or any home remedies.', 'Remove jewelry/watches near the burn area (swelling can occur).', 'Cover loosely with a sterile, non-fluffy bandage or cling film.', 'For major burns (larger than palm, on face/hands/genitals, deep): Call 112 immediately.', 'Do not remove clothing stuck to the burn.', 'Keep the person warm to prevent shock.'],
+    warning: '⚠️ Chemical burns: flush with large amounts of water for 20+ minutes. Seek immediate medical attention.'
+  },
+  {
+    id: 'shock', icon: '⚡', title: 'Shock', subtitle: 'Recognize and treat shock', critical: true,
+    steps: ['Call 112 immediately — shock is a medical emergency.', 'Signs: pale/cold/clammy skin, rapid weak pulse, fast breathing, confusion, dizziness.', 'Lay the person down. Elevate legs 12 inches (unless head, neck, spine injury suspected).', 'Keep the person still, warm, and calm.', 'Loosen tight clothing.', 'Do NOT give food or water.', 'Monitor breathing. Begin CPR if breathing stops.'],
+    warning: '⚠️ Never leave a person in shock alone. Keep them warm and reassured until help arrives.'
+  },
+  {
+    id: 'fracture', icon: '🦴', title: 'Fractures', subtitle: 'Broken bones & sprains', critical: false,
+    steps: ['Call 112 for suspected spine, hip, or femur fractures.', 'Keep the injured area still — do not try to straighten a fractured bone.', 'Immobilize the area using a splint (padded board, rolled magazine) extending beyond the joints above and below.', 'Apply ice wrapped in cloth to reduce swelling (20 min on, 20 min off).', 'Elevate the limb if possible.', 'Monitor circulation — check for numbness or color changes below the fracture.'],
+    warning: '⚠️ If the person is unconscious or spine injury is suspected, do not move them without professional help.'
+  },
+  {
+    id: 'poisoning', icon: '☠️', title: 'Poisoning', subtitle: 'Chemical or drug poisoning', critical: true,
+    steps: ['Call KATH Poison Control: +233-322-060-401 or 112 immediately.', 'Do NOT induce vomiting unless specifically told to by a healthcare professional.', 'If the substance is known, have the container ready for information.', 'If poison is on the skin: remove contaminated clothing, flush skin with large amounts of water for 15-20 min.', 'If poison is in the eye: flush with clean water for 15-20 min.', 'Keep the person calm and still. Monitor breathing.', 'If unconscious and breathing, place in recovery position (on their side).'],
+    warning: '⚠️ Never give food, water, or milk unless advised by Poison Control.'
+  },
+  {
+    id: 'heatstroke', icon: '☀️', title: 'Heat Stroke', subtitle: 'Heat-related illness', critical: true,
+    steps: ['Call 112 immediately — heat stroke is life-threatening.', 'Move the person to a cool shaded area immediately.', 'Remove excess clothing.', 'Cool the person rapidly: apply cool water/ice packs to neck, armpits, and groin.', 'Fan the person to aid cooling.', 'Give cool water only if conscious and able to swallow.', 'Do NOT give aspirin or paracetamol for heat stroke.'],
+    warning: '⚠️ Signs: body temperature above 40°C, confusion, loss of consciousness, hot/dry skin, no sweating.'
+  },
+  {
+    id: 'wounds', icon: '✂️', title: 'Cuts & Wounds', subtitle: 'Minor to moderate cuts', critical: false,
+    steps: ['Wash hands before treating the wound.', 'For minor cuts: Apply gentle pressure with a clean cloth for 5-10 minutes.', 'Rinse the wound thoroughly under running water for 5-10 minutes.', 'Clean around the wound with mild soap. Do not put soap inside the wound.', 'Apply an antiseptic (Dettol, Savlon) and cover with a bandage.', 'Change the dressing daily or when wet/dirty.', 'Seek medical attention if: deep/gaping wound, won\'t stop bleeding, shows signs of infection (redness, swelling, pus, fever).'],
+    warning: '⚠️ Ensure tetanus vaccination is up to date if the wound is deep or from a dirty object.'
+  },
+];
+
+function renderFirstAidGrid(guides = firstAidGuides) {
+  const grid = document.getElementById('firstAidGrid');
+  grid.innerHTML = guides.map(g => `
+    <div class="first-aid-card" onclick="openGuide('${g.id}')">
+      <div class="fa-icon">${g.icon}</div>
+      <div>
+        ${g.critical ? '<span class="badge badge-red" style="margin-bottom:4px">CRITICAL</span>' : ''}
+        <h5>${g.title}</h5>
+        <p>${g.subtitle}</p>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterFirstAid(q) {
+  const filtered = firstAidGuides.filter(g =>
+    g.title.toLowerCase().includes(q.toLowerCase()) ||
+    g.subtitle.toLowerCase().includes(q.toLowerCase())
+  );
+  renderFirstAidGrid(filtered);
+}
+
+function openGuide(id) {
+  const guide = firstAidGuides.find(g => g.id === id);
+  if (!guide) return;
+  document.getElementById('guideModalTitle').textContent = `${guide.icon} ${guide.title}`;
+  document.getElementById('guideModalBody').innerHTML = `
+    ${guide.critical ? '<div class="badge badge-red" style="margin-bottom:12px">CRITICAL — Call 112 first</div>' : ''}
+    <p style="color:var(--text-3);font-size:13px;margin-bottom:16px">${guide.subtitle}</p>
+    <h4 style="font-size:15px;margin-bottom:12px">Step-by-Step Instructions</h4>
+    <ol style="padding-left:20px;display:flex;flex-direction:column;gap:10px">
+      ${guide.steps.map(s => `<li style="font-size:14px;line-height:1.5">${s}</li>`).join('')}
+    </ol>
+    ${guide.warning ? `<div class="alert alert-warning" style="margin-top:16px;font-size:13px"><span class="alert-icon">⚠️</span>${guide.warning}</div>` : ''}
+  `;
+  document.getElementById('guideModal').classList.add('open');
+}
+
+function closeGuideModal() {
+  document.getElementById('guideModal').classList.remove('open');
+}
+
+// ─── SYMPTOMS ──────────────────────────────────────────────────
+const symptomGroups = [
+  {
+    name: 'Pain & Discomfort',
+    items: [
+      { id: 'chest_pain', label: 'Chest pain or pressure', critical: true },
+      { id: 'headache', label: 'Sudden severe headache', critical: false },
+      { id: 'abdominal', label: 'Severe abdominal pain', critical: false },
+      { id: 'back_pain', label: 'Back pain', critical: false },
+    ]
+  },
+  {
+    name: 'Breathing & Heart',
+    items: [
+      { id: 'diff_breathing', label: 'Difficulty breathing', critical: true },
+      { id: 'short_breath', label: 'Shortness of breath', critical: false },
+      { id: 'irregular_heart', label: 'Rapid or irregular heartbeat', critical: false },
+      { id: 'cough', label: 'Persistent cough', critical: false },
+    ]
+  },
+  {
+    name: 'Neurological',
+    items: [
+      { id: 'confusion', label: 'Confusion or altered consciousness', critical: true },
+      { id: 'slurred', label: 'Slurred speech', critical: true },
+      { id: 'weakness', label: 'Sudden weakness or numbness', critical: true },
+      { id: 'dizziness', label: 'Dizziness', critical: false },
+      { id: 'seizure', label: 'Seizure', critical: true },
+    ]
+  },
+  {
+    name: 'General Symptoms',
+    items: [
+      { id: 'high_fever', label: 'High fever (>38.5°C / 101°F)', critical: false },
+      { id: 'fever', label: 'Fever', critical: false },
+      { id: 'vomiting', label: 'Severe vomiting or diarrhea', critical: false },
+      { id: 'uncontrolled_bleed', label: 'Uncontrolled bleeding', critical: true },
+      { id: 'rash', label: 'Severe rash or allergic reaction', critical: false },
+    ]
+  }
+];
+
+function renderSymptoms() {
+  const form = document.getElementById('symptom-form');
+  form.innerHTML = symptomGroups.map(group => `
+    <div class="card" style="padding:16px;margin-bottom:14px">
+      <h4 style="font-size:15px;margin-bottom:12px">${group.name}</h4>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${group.items.map(item => `
+          <label class="symptom-item ${item.critical ? 'critical-sym' : ''}">
+            <span>${item.label} ${item.critical ? '<span style="color:var(--red);font-size:12px">⚠️</span>' : ''}</span>
+            <input type="checkbox" id="sym_${item.id}" name="symptom" value="${item.id}" data-critical="${item.critical}">
+          </label>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function assessSymptoms() {
+  const checked = document.querySelectorAll('input[name="symptom"]:checked');
+  const critical = [...checked].some(c => c.dataset.critical === 'true');
+  const count = checked.length;
+
+  const resultDiv = document.getElementById('assessment-result');
+  resultDiv.style.display = 'block';
+  resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  if (count === 0) {
+    resultDiv.innerHTML = `<div class="assessment-result assessment-mild" style="text-align:center">
+      <div style="font-size:40px;margin-bottom:8px">✅</div>
+      <h3 style="color:var(--green)">No Symptoms Selected</h3>
+      <p style="font-size:14px;color:var(--text-2)">Select symptoms above to get an assessment.</p>
+    </div>`;
+    return;
+  }
+
+  if (critical) {
+    resultDiv.innerHTML = `
+      <div class="assessment-result assessment-critical">
+        <h3 style="color:var(--red);margin-bottom:8px">🚨 Seek Emergency Care Immediately</h3>
+        <p style="font-size:14px;margin-bottom:12px">One or more of your symptoms may indicate a medical emergency. Do not wait.</p>
+        <a href="tel:112" class="btn btn-primary btn-full" style="margin-bottom:8px">📞 Call 112 Now</a>
+        <p style="font-size:12px;color:#7F1D1D;text-align:center">This is a recommendation, not a diagnosis. Always consult a medical professional.</p>
+      </div>`;
+  } else if (count >= 3) {
+    resultDiv.innerHTML = `
+      <div class="assessment-result assessment-moderate">
+        <h3 style="color:var(--yellow);margin-bottom:8px">⚠️ Seek Medical Attention Soon</h3>
+        <p style="font-size:14px;margin-bottom:12px">Multiple symptoms suggest you should see a doctor or visit a clinic today.</p>
+        <a href="tel:0800110011" class="btn btn-orange btn-full" style="margin-bottom:8px">📞 Ghana Health Service Hotline</a>
+        <p style="font-size:12px;color:#78350F;text-align:center">This is not a diagnosis. Please consult a healthcare provider.</p>
+      </div>`;
+  } else {
+    resultDiv.innerHTML = `
+      <div class="assessment-result assessment-mild">
+        <h3 style="color:var(--green);margin-bottom:8px">ℹ️ Monitor Your Symptoms</h3>
+        <p style="font-size:14px;margin-bottom:12px">Your symptoms appear mild. Rest, stay hydrated, and monitor how you feel. If symptoms worsen or new ones appear, seek medical attention.</p>
+        <a href="tel:0800110011" class="btn btn-success btn-full">📞 Consult a Doctor if Unsure</a>
+      </div>`;
+  }
+}
+
+// ─── CONTACTS ─────────────────────────────────────────────────
+async function loadContacts() {
+  try {
+    const contacts = await API.get('/contacts');
+    renderContacts(contacts);
+  } catch (e) {
+    console.error('Failed to load contacts:', e);
+  }
+}
+
+function renderContacts(contacts) {
+  const list = document.getElementById('contacts-list');
+  if (!contacts.length) {
+    list.innerHTML = `<div class="empty-state">
+      <div class="empty-state-icon">👥</div>
+      <h3>No emergency contacts added yet</h3>
+      <p>Tap the button above to add your first contact</p>
+    </div>`;
+    return;
+  }
+  list.innerHTML = contacts.map(c => `
+    <div class="card" style="padding:16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0">
+        <div style="width:42px;height:42px;background:linear-gradient(135deg,var(--blue),var(--blue-light));border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:18px;flex-shrink:0">${c.contact_name.charAt(0).toUpperCase()}</div>
+        <div style="min-width:0">
+          <div style="font-weight:700;font-size:15px">${c.contact_name}</div>
+          <div style="font-size:13px;color:var(--text-3)">${c.contact_phone}</div>
+          ${c.relationship ? `<div style="font-size:11px;color:var(--text-3)">${c.relationship}</div>` : ''}
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0">
+        <a href="tel:${c.contact_phone}" class="btn btn-success btn-sm">📞</a>
+        <button class="btn btn-danger btn-sm" onclick="deleteContact('${c.id}')">🗑️</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openContactModal() {
+  document.getElementById('contactModal').classList.add('open');
+}
+function closeContactModal() {
+  document.getElementById('contactModal').classList.remove('open');
+  document.getElementById('new_contact_name').value = '';
+  document.getElementById('new_contact_phone').value = '';
+  document.getElementById('new_contact_rel').value = '';
+}
+
+async function addContact() {
+  const name = document.getElementById('new_contact_name').value.trim();
+  const phone = document.getElementById('new_contact_phone').value.trim();
+  const rel = document.getElementById('new_contact_rel').value;
+
+  if (!name || !phone) return showToast('Name and phone are required', 'warning');
+
+  try {
+    await API.post('/contacts', { contact_name: name, contact_phone: phone, relationship: rel });
+    closeContactModal();
+    await loadContacts();
+    showToast('Contact added!', 'success');
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function deleteContact(id) {
+  if (!confirm('Remove this contact?')) return;
+  try {
+    await API.delete(`/contacts/${id}`);
+    await loadContacts();
+    showToast('Contact removed', 'success');
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+// ─── MEDICAL PROFILE ──────────────────────────────────────────
+async function loadProfile() {
+  try {
+    const data = await API.get('/profile/medical');
+    if (data.date_of_birth) document.getElementById('prof_dob').value = data.date_of_birth;
+    if (data.blood_type) document.getElementById('prof_blood').value = data.blood_type;
+    if (data.allergies) document.getElementById('prof_allergies').value = data.allergies;
+    if (data.medications) document.getElementById('prof_medications').value = data.medications;
+    if (data.conditions) document.getElementById('prof_conditions').value = data.conditions;
+    if (data.insurance_info) document.getElementById('prof_insurance').value = data.insurance_info;
+    if (data.additional_notes) document.getElementById('prof_notes').value = data.additional_notes;
+  } catch (e) { console.error('Profile load error:', e); }
+
+  // Also fill name from user data
+  const user = API.getUser();
+  if (user) document.getElementById('prof_name').value = user.full_name || '';
+}
+
+async function saveProfile() {
+  const btn = document.getElementById('saveProfileBtn');
+  setButtonLoading(btn, true);
+  try {
+    await API.put('/profile/medical', {
+      date_of_birth: document.getElementById('prof_dob').value,
+      blood_type: document.getElementById('prof_blood').value,
+      allergies: document.getElementById('prof_allergies').value,
+      medications: document.getElementById('prof_medications').value,
+      conditions: document.getElementById('prof_conditions').value,
+      insurance_info: document.getElementById('prof_insurance').value,
+      additional_notes: document.getElementById('prof_notes').value,
+    });
+    showToast('Medical profile saved!', 'success');
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+  setButtonLoading(btn, false);
+}
+
+// ─── PAGE SWITCHING WITH DATA LOAD ────────────────────────────
+const originalSwitch = window.switchPage;
+window.switchPage = function(pageId) {
+  originalSwitch && originalSwitch(pageId);
+  if (pageId === 'contacts') loadContacts();
+  if (pageId === 'profile') loadProfile();
+  if (pageId === 'request') loadActiveProfessionals();
+  if (pageId === 'myrequests') loadMyRequests();
+  if (pageId === 'home') loadHomeTracker();
+};
+
+// ─── ACTIVE PROFESSIONALS ──────────────────────────────────────
+async function loadActiveProfessionals() {
+  const container = document.getElementById('pros-list');
+  if (!container) return;
+  container.innerHTML = `<div class="empty-state"><div class="empty-state-icon" style="font-size:36px">⏳</div><p>Loading professionals...</p></div>`;
+
+  try {
+    const pros = await API.get('/professionals/active');
+
+    if (!pros.length) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">🩺</div>
+          <h3>No active professionals right now</h3>
+          <p>No healthcare professionals are currently available. You can still send a broadcast request — they'll see it when they come online.</p>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = pros.map(p => {
+      const onDuty = !!p.is_on_duty;
+      return `
+        <div style="background:var(--surface);border:1.5px solid ${onDuty ? 'var(--green)' : 'var(--border)'};border-radius:var(--radius);padding:16px;margin-bottom:12px;transition:var(--transition)">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+            <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0">
+              <div style="width:46px;height:46px;background:linear-gradient(135deg,${onDuty ? 'var(--green),var(--green-light)' : '#64748b,#94a3b8'});border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;font-size:22px;flex-shrink:0">🩺</div>
+              <div style="min-width:0">
+                <div style="font-weight:700;font-size:15px">${p.full_name}</div>
+                <div style="font-size:12px;color:var(--text-3)">${p.specialization || 'General'} ${p.hospital ? '· ' + p.hospital : ''}</div>
+                <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+                  <span class="status-dot ${onDuty ? 'active' : 'pending'}"></span>
+                  <span style="font-size:12px;font-weight:600;color:${onDuty ? 'var(--green)' : 'var(--yellow)'}">${onDuty ? 'On Duty' : 'Available'}</span>
+                </div>
+              </div>
+            </div>
+            <button class="btn ${onDuty ? 'btn-success' : 'btn-ghost'} btn-sm"
+              onclick="openRequestModal('${p.id}', '${p.full_name.replace(/'/g,"\\'")}')">
+              ${onDuty ? '🚑 Request Now' : '📨 Send Request'}
+            </button>
+          </div>
+        </div>`;
+    }).join('');
+
+  } catch (err) {
+    container.innerHTML = `<div class="alert alert-danger"><span class="alert-icon">❌</span><span>${err.message}</span></div>`;
+  }
+}
+
+// ─── REQUEST MODAL ─────────────────────────────────────────────
+let selectedProfessionalId = null;
+
+function openRequestModal(proId, proName) {
+  selectedProfessionalId = proId;
+  document.getElementById('requestModalTitle').textContent = proId ? `Request ${proName}` : 'Broadcast Request';
+
+  const proInfo = document.getElementById('requestModalPro');
+  if (proId && proName) {
+    proInfo.style.display = 'flex';
+    proInfo.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="font-size:24px">🩺</div>
+        <div><div style="font-weight:700;font-size:14px">${proName}</div><div style="font-size:12px;color:var(--text-3)">This request will go directly to this professional</div></div>
+      </div>`;
+  } else {
+    proInfo.style.display = 'none';
+  }
+
+  // Reset fields
+  document.getElementById('req_type').value = '';
+  document.getElementById('req_location').value = '';
+  document.getElementById('req_description').value = '';
+  document.getElementById('requestModal').classList.add('open');
+}
+
+function closeRequestModal() {
+  document.getElementById('requestModal').classList.remove('open');
+  selectedProfessionalId = null;
+}
+
+async function submitRequest() {
+  const type = document.getElementById('req_type').value;
+  const location = document.getElementById('req_location').value.trim();
+  const description = document.getElementById('req_description').value.trim();
+
+  if (!type) return showToast('Please select the type of assistance needed', 'warning');
+
+  const btn = document.getElementById('sendRequestBtn');
+  setButtonLoading(btn, true);
+
+  try {
+    await API.post('/requests', {
+      request_type: type,
+      location,
+      description,
+      professional_id: selectedProfessionalId || null,
+    });
+
+    closeRequestModal();
+    showToast('✅ Request sent! A professional will respond shortly.', 'success');
+    // Switch to My Requests so they can track it
+    switchPage('myrequests');
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+  setButtonLoading(btn, false);
+}
+
+// ─── MY REQUESTS ───────────────────────────────────────────────
+async function loadMyRequests() {
+  const container = document.getElementById('my-requests-list');
+  if (!container) return;
+  container.innerHTML = `<div class="empty-state"><div class="empty-state-icon" style="font-size:36px">⏳</div><p>Loading your requests...</p></div>`;
+
+  try {
+    const requests = await API.get('/requests/mine');
+
+    if (!requests.length) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">📋</div>
+          <h3>No requests yet</h3>
+          <p>Go to <strong>Request a Professional</strong> to send your first request.</p>
+          <button class="btn btn-primary btn-sm" style="margin-top:12px" onclick="switchPage('request')">🚑 Request a Professional</button>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = requests.map(r => {
+      const statusColors = {
+        pending:    { border: 'var(--yellow)',  bg: '#FFFBEB' },
+        accepted:   { border: 'var(--blue)',    bg: '#EFF6FF' },
+        on_the_way: { border: 'var(--green)',   bg: '#F0FDF4' },
+        completed:  { border: '#94a3b8',        bg: '#F8FAFC' },
+        cancelled:  { border: '#94a3b8',        bg: '#F8FAFC' },
+      };
+      const sc = statusColors[r.status] || statusColors.pending;
+
+      const statusSteps = {
+        pending:    { icon: '⏳', label: 'Waiting for a professional to accept your request...' },
+        accepted:   { icon: '✅', label: 'A professional has accepted your request!' },
+        on_the_way: { icon: '🚑', label: 'Help is on the way to you!' },
+        completed:  { icon: '✔️', label: 'This request has been completed.' },
+        cancelled:  { icon: '✖️', label: 'This request was cancelled.' },
+      };
+      const ss = statusSteps[r.status] || statusSteps.pending;
+
+      return `
+        <div style="background:${sc.bg};border:1.5px solid ${sc.border};border-radius:var(--radius);padding:18px;margin-bottom:14px">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+            <div>
+              <div style="font-weight:800;font-size:16px">🚨 ${r.request_type}</div>
+              <div style="font-size:12px;color:var(--text-3);margin-top:2px">${timeAgo(r.created_at)}</div>
+            </div>
+            ${statusBadge(r.status)}
+          </div>
+
+          <!-- Progress bar -->
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:12px">
+            ${['pending','accepted','on_the_way','completed'].map(s => {
+              const steps = ['pending','accepted','on_the_way','completed'];
+              const current = steps.indexOf(r.status);
+              const thisIdx = steps.indexOf(s);
+              const done = thisIdx <= current && r.status !== 'cancelled';
+              return `<div style="flex:1;height:4px;border-radius:4px;background:${done ? 'var(--green)' : 'var(--border)'}"></div>`;
+            }).join('')}
+          </div>
+
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:10px">
+            <span style="font-size:18px">${ss.icon}</span>
+            <span style="color:var(--text-2)">${ss.label}</span>
+          </div>
+
+          ${r.professional_name ? `
+          <div style="background:white;border-radius:var(--radius-sm);padding:10px 12px;display:flex;align-items:center;gap:10px;border:1px solid var(--border);margin-bottom:8px">
+            <div style="font-size:20px">🩺</div>
+            <div>
+              <div style="font-size:12px;color:var(--text-3)">Assigned Professional</div>
+              <div style="font-weight:700;font-size:14px">${r.professional_name}</div>
+            </div>
+          </div>` : ''}
+
+          ${r.location ? `<div style="font-size:12px;color:var(--text-3)">📍 ${r.location}</div>` : ''}
+          ${r.description ? `<div style="font-size:13px;color:var(--text-2);margin-top:6px;padding:8px;background:white;border-radius:6px;border:1px solid var(--border)">${r.description}</div>` : ''}
+        </div>`;
+    }).join('');
+
+  } catch (err) {
+    container.innerHTML = `<div class="alert alert-danger"><span class="alert-icon">❌</span><span>${err.message}</span></div>`;
+  }
+}
+
+// ─── HOME TRACKER (latest active request shown on home page) ──
+async function loadHomeTracker() {
+  try {
+    const requests = await API.get('/requests/mine');
+    const active = requests.find(r => ['pending','accepted','on_the_way'].includes(r.status));
+    const tracker = document.getElementById('home-request-tracker');
+    const card = document.getElementById('home-tracker-card');
+    if (!tracker || !card) return;
+
+    if (active) {
+      tracker.style.display = 'block';
+      const statusSteps = {
+        pending:    { icon: '⏳', label: 'Waiting for a professional to accept...', color: 'var(--yellow)' },
+        accepted:   { icon: '✅', label: 'A professional has accepted your request!', color: 'var(--blue)' },
+        on_the_way: { icon: '🚑', label: 'Help is on the way to you!', color: 'var(--green)' },
+      };
+      const ss = statusSteps[active.status];
+      card.innerHTML = `
+        <div style="background:var(--surface);border:2px solid ${ss.color};border-radius:var(--radius);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:28px">${ss.icon}</span>
+            <div>
+              <div style="font-weight:700;font-size:14px">${active.request_type}</div>
+              <div style="font-size:12px;color:var(--text-3)">${ss.label}</div>
+            </div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="switchPage('myrequests')">Track →</button>
+        </div>`;
+    } else {
+      tracker.style.display = 'none';
+    }
+  } catch(e) {}
+}
+
+// ─── INIT ──────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  renderFirstAidGrid();
+  renderSymptoms();
+  switchPage('home');
+  loadHomeTracker();
+
+  // Auto-refresh tracker every 20 seconds while on home
+  setInterval(() => {
+    const homePage = document.getElementById('page-home');
+    if (homePage && homePage.style.display !== 'none') loadHomeTracker();
+  }, 20000);
+
+  document.getElementById('hamburgerBtn').addEventListener('click', () => {
+    document.getElementById('mainSidebar').classList.toggle('mobile-open');
+    document.getElementById('sidebarOverlay').classList.toggle('open');
+  });
+  document.getElementById('sidebarOverlay').addEventListener('click', () => {
+    document.getElementById('mainSidebar').classList.remove('mobile-open');
+    document.getElementById('sidebarOverlay').classList.remove('open');
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account — Rapid Care Ghana</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div style="position:fixed;top:16px;right:16px">
+    <button class="dark-toggle" onclick="toggleDarkMode()"></button>
+  </div>
+
+  <div class="auth-page">
+    <div class="auth-logo">
+      <a href="/"><img src="logo.jpg" alt="Rapid Care Ghana"></a>
+      <p>Emergency Health Response &middot; Ghana</p>
+    </div>
+
+    <div class="auth-card" style="max-width:480px">
+      <div id="alert-area"></div>
+
+      <!-- Role tabs -->
+      <div style="display:flex;gap:6px;margin-bottom:20px;background:var(--surface-2);padding:4px;border-radius:10px;border:1px solid var(--border)">
+        <button class="btn btn-sm btn-primary" id="tab-patient" onclick="setRole('patient')" style="flex:1;border-radius:7px">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Patient
+        </button>
+        <button class="btn btn-sm btn-ghost" id="tab-pro" onclick="setRole('professional')" style="flex:1;border-radius:7px">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg>
+          Professional
+        </button>
+      </div>
+
+      <h2 id="form-title" style="margin-bottom:3px">Create Account</h2>
+      <p class="subtitle">Fill in your details to get started</p>
+
+      <!-- Google sign up -->
+      <a id="googleBtn" href="/api/auth/google?role=patient" class="btn btn-google btn-full" style="gap:10px;margin-bottom:4px">
+        <span id="googleIcon"></span>
+        Sign up with Google
+      </a>
+
+      <div class="auth-divider">or register with email</div>
+
+      <form class="auth-form" id="registerForm">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" class="form-input" id="full_name" placeholder="Your full name" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-input" id="email" placeholder="your@email.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-input" id="password" placeholder="Minimum 6 characters" required minlength="6">
+        </div>
+
+        <div id="pro-fields" style="display:none">
+          <div style="height:1px;background:var(--border);margin:4px 0 14px"></div>
+          <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-4);margin-bottom:12px">Professional Details</p>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div class="form-group">
+              <label class="form-label">Medical License Number</label>
+              <input type="text" class="form-input" id="license_number" placeholder="GHS-XXXX-XXXX">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Specialization</label>
+              <select class="form-select" id="specialization">
+                <option value="">Select your specialization</option>
+                <option>Emergency Medicine</option>
+                <option>General Practice</option>
+                <option>Nursing</option>
+                <option>Paramedic</option>
+                <option>Cardiology</option>
+                <option>Pediatrics</option>
+                <option>Surgery</option>
+                <option>Trauma</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Hospital / Facility</label>
+              <input type="text" class="form-input" id="hospital" placeholder="e.g. KATH, Korle Bu, Ridge Hospital">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-checkbox-group">
+          <input type="checkbox" id="agree" required>
+          <label for="agree">I agree to the terms of service. I understand this platform provides educational information and is not a substitute for professional medical advice or emergency services.</label>
+        </div>
+
+        <div class="alert alert-warning" style="font-size:12px">
+          <svg class="alert-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span>In a life-threatening emergency, always call <strong>112</strong> immediately.</span>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full btn-lg" id="registerBtn">Create Account</button>
+      </form>
+
+      <div class="auth-footer">Already have an account? <a href="login.html">Sign in</a></div>
+      <div class="auth-footer" style="margin-top:6px"><a href="/" style="color:var(--text-4);font-size:11px">Back to role selection</a></div>
+    </div>
+
+    <p class="auth-disclaimer">
+      By creating an account, you acknowledge this is an educational tool<br>
+      and not a replacement for emergency medical services (112)
+    </p>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    let currentRole = 'patient';
+    document.getElementById('googleIcon').innerHTML = icons.google(20);
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('role') === 'professional') setRole('professional');
+
+    function setRole(role) {
+      currentRole = role;
+      const isPro = role === 'professional';
+      document.getElementById('pro-fields').style.display = isPro ? 'block' : 'none';
+      document.getElementById('form-title').textContent = isPro ? 'Professional Registration' : 'Create Account';
+      document.getElementById('license_number').required = isPro;
+      document.getElementById('googleBtn').href = `/api/auth/google?role=${role}`;
+      document.getElementById('tab-patient').className = `btn btn-sm ${role === 'patient' ? 'btn-primary' : 'btn-ghost'}`;
+      document.getElementById('tab-pro').className = `btn btn-sm ${isPro ? 'btn-blue' : 'btn-ghost'}`;
+    }
+
+    function showAlert(msg, type = 'danger') {
+      const i = type === 'success'
+        ? `<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>`
+        : `<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>`;
+      document.getElementById('alert-area').innerHTML = `
+        <div class="alert alert-${type}" style="margin-bottom:14px">
+          <svg class="alert-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${i}</svg>
+          <span>${msg}</span>
+        </div>`;
+    }
+
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('registerBtn');
+      document.getElementById('alert-area').innerHTML = '';
+      setButtonLoading(btn, true);
+
+      const body = {
+        full_name: document.getElementById('full_name').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        password: document.getElementById('password').value,
+        role: currentRole,
+      };
+      if (currentRole === 'professional') {
+        body.license_number = document.getElementById('license_number').value.trim();
+        body.specialization = document.getElementById('specialization').value;
+        body.hospital = document.getElementById('hospital').value.trim();
+      }
+
+      try {
+        await API.post('/auth/register', body);
+        showAlert('Account created! Redirecting to sign in...', 'success');
+        setTimeout(() => window.location.href = `login.html?role=${currentRole}`, 1200);
+      } catch (err) {
+        setButtonLoading(btn, false);
+        showAlert(err.message);
+      }
+    });
+  </script>
+</body>
+</html>
